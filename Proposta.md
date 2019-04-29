@@ -10,4 +10,5 @@ Existem aplicativos similares, porém não com a ideia de mapa interno e os mais
 * thefork
 
 # 4. Mockup de Telas
-    ![Tela de Mapa](mockups/map_screen.png)
+a
+    <img src='mockups/map_screen.png'>
