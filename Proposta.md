@@ -10,5 +10,10 @@ Existem aplicativos similares, porém não com a ideia de mapa interno e os mais
 * thefork
 
 # 4. Mockup de Telas
-a
-    <img src='mockups/map_screen.png'>
+* Tela de Busca: Poderá ser feito uma busca por um endereço e retornar restaurantes da área<br>
+<img src='mockups/map_screen.png' style='width: 200px'><br>
+* Tela do Restaurante: Cada restaurante deve ter uma tela com a descrição do mesmo, menu e reviews<br>
+<img src='mockups/restaurant_menu.png' style='width: 200px'><br>
+<img src='mockups/restaurant_reviews.png' style='width: 200px'><br>
+* Mapa do Restaurante: Cada restaurante deve disponibilizar um mapa para ver as mesas do restaurante. Assim o mesmo poderá escolher um intervalo de horários e selecionar uma mesa se estiver disponível<br>
+<img src='mockups/make_reservations.png' style='width: 200px'><br>
