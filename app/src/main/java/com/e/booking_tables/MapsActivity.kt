@@ -60,6 +60,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     private fun launchRestaurantActivity() {
         val intent = Intent(this, RestaurantActivity::class.java)
+        intent.putExtra("restaurantID", 1)
+        intent.putExtra("restaurantName", "Sushi10")
         startActivity(intent)
     }
 
