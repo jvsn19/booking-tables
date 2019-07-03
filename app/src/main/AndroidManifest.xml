@@ -17,13 +17,12 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
-                android:name=".RestaurantActivity"
+                android:name=".ui.RestaurantActivity"
                 android:label="@string/restaurant_activity"
-                android:parentActivityName=".MapsActivity">
-                <meta-data
-                        android:name="android.support.PARENT_ACTIVITY"
-                        android:value="com.e.booking_tables.MapsActivity"
-                />
+                android:parentActivityName=".ui.MapsActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.e.booking_tables.ui.MapsActivity"/>
         </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -38,7 +37,7 @@
                 android:value="@string/google_maps_key"/>
 
         <activity
-                android:name=".MapsActivity"
+                android:name=".ui.MapsActivity"
                 android:label="@string/title_activity_maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

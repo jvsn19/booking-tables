@@ -1,4 +1,4 @@
-package com.e.booking_tables
+package com.e.booking_tables.ui
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,8 +9,10 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.util.Log
-import android.view.View
 import android.widget.Toast
+import com.e.booking_tables.R
+import com.e.booking_tables.firebase.FirebaseManager
+import com.e.booking_tables.models.RestaurantModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -21,6 +23,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.database.*
 import java.lang.Exception
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -32,15 +35,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var userLocation: Location
 
+    private lateinit var databaseReference: DatabaseReference
+    private lateinit var firebaseManager : FirebaseManager
+    private lateinit var restaurants : ArrayList<RestaurantModel>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_maps)
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        databaseReference = FirebaseDatabase.getInstance().reference
+        firebaseManager = FirebaseManager(this)
+
+        restaurants = firebaseManager.loadDatabase()
+
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -51,17 +67,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         setUpMap()
 
+        for(restaurant in restaurants) {
+            val restaurantLatLng = LatLng(restaurant.coords["lat"]!!.toDouble(), restaurant.coords["long"]!!.toDouble())
+            placeMarker(restaurantLatLng, restaurants.indexOf(restaurant))
+        }
     }
 
     override fun onMarkerClick(marker: Marker?): Boolean {
-        launchRestaurantActivity()
+        launchRestaurantActivity(marker)
         return false
     }
 
-    private fun launchRestaurantActivity() {
+    private fun launchRestaurantActivity(marker: Marker?) {
+        val restaurantIdx = marker!!.tag.toString().toInt()
         val intent = Intent(this, RestaurantActivity::class.java)
-        intent.putExtra("restaurantID", 1)
-        intent.putExtra("restaurantName", "Sushi10")
+        intent.putExtra("restaurantName", restaurants[restaurantIdx].name)
+        intent.putExtra("restaurantAddress", restaurants[restaurantIdx].address)
+        intent.putExtra("restaurantRating", restaurants[restaurantIdx].rating)
+        intent.putExtra("restaurantMenu", restaurants[restaurantIdx].menu)
+        print("${restaurants[restaurantIdx].menu}")
+
+        var bundle = Bundle()
+        bundle.putParcelableArrayList("restaurantMenu", restaurants[restaurantIdx].menu)
+        intent.putExtras(bundle)
+
         startActivity(intent)
     }
 
@@ -70,7 +99,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST_CODE)
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
             return
         }
         mMap.isMyLocationEnabled = true
@@ -80,7 +110,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 userLocation = location
                 val currentLatLng = LatLng(userLocation.latitude, userLocation.longitude)
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17.0f))
-                placeMarker(currentLatLng)
             }
             else {
                 displayToast("Zoom your map to see restaurants")
@@ -95,11 +124,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         toast.show()
     }
 
-    private fun placeMarker(location: LatLng) {
+    private fun placeMarker(location: LatLng, tag: Int) {
         val markerOption = MarkerOptions().position(location)
         val addressText = getAddress(location)
         markerOption.title(addressText)
-        mMap.addMarker(markerOption)
+        val marker = mMap.addMarker(markerOption)
+        marker.tag = tag
     }
 
     private fun getAddress(latLng: LatLng): String {
@@ -122,5 +152,4 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         return addressText
     }
-
 }
